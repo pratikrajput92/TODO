@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import AddTask from '../../pages/AddTask';
+import AddTask from '../pages/AddTask';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
