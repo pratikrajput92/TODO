@@ -11,18 +11,19 @@ function Home({task, setTask}) {
   const [allTask, setAllTask] = useState([])
 
   const { type } = useParams();
+  const  selectedType = type?.toLowerCase();
 
   const fatchData = async ()=>{
 
     try{
-      const response = await axios.get("https://api.freeapi.app/api/v1/todos");
+      const response = await axios.get("http://localhost:5000/api/todos");
       console.log("API Response", response.data);
 
-       if (response.data && Array.isArray(response.data.data)) {
-        setTask(response.data.data);
-        setAllTask(response.data.data)
+       if (response.data && Array.isArray(response.data)) {
+        setTask(response.data);
+        setAllTask(response.data)
       } else {
-        console.error("Error :", error);
+        console.error("Invalid API Response");
       }
     } catch (error) {
       console.error("Error :", error);
@@ -35,70 +36,49 @@ function Home({task, setTask}) {
     fatchData()
    }, [])
 
-  // useEffect(() => {
+ 
+  const filteredTasks = allTask.filter(t => {
+    if (selectedType === "pending") 
+      return t.status === "Pending";
 
-  //   console.log(type)
-  //   try {
-  //     let saved = localStorage.getItem("tasks");
-  //     if (saved) {
-  //       saved = JSON.parse(saved);
-  //       if (Array.isArray(saved)) {
-  //         setTask(saved);
-  //         setAllTask(saved)
-  //       } else {
-  //         setTask([]);
-  //       }
-  //     } else {
-  //       setTask([]);
-  //     }
-  //     console.log(saved);
+    if (selectedType === "completed") 
+      return t.status === "Completed";
 
-  //   } catch (error) {
-  //     console.error("error", error);
-  //     setTask([]);
-  //   }
-
-  //   if (type && type == 'pending') {
-  //     setTask((prev) => {
-  //       return prev.filter(t => t.status === "pending");
-  //     })
-  //   } else if (type && type == 'completed') {
-  //     setTask((prev) => {
-  //       return prev.filter(t => t.status === "completed");
-  //     })
-  //   } else if (type && type == 'today') {
-  //     const today = new Date().toISOString().split("T")[0];
-  //     setTask((prev) => {
-  //       return prev.filter(t => t.date === today);
-  //     })
-  //   }
-  // }, [type])
-
-  const filteredTasks = task.filter(t => {
-  if (type === "pending") return t.isComplete === false;
-  if (type === "completed") return t.isComplete === true;
-  if (type === "today") {
-    const today = new Date().toISOString().split("T")[0];
-    return t.date === today; 
+    if (selectedType === "today") {
+      const today = new Date().toISOString().split("T")[0];
+      return t.deadline?.split("T")[0] === today;
     }
+
     return true;
   });
 
+   // const filteredTasks = allTask.filter(t => {
+  // if (type === "pending") return t.status === "Pending";
+  // if (type === "completed") return t.status === "Completed";
+  // if (type === "today") {
+  //   const today = new Date().toISOString().split("T")[0];
+  //   return t.date === today; 
+  //   }
+  //   return true;
+  // });
+
   const handleCheckbox = async(id) => {
    try {
-    const response = await axios.patch(`https://api.freeapi.app/api/v1/todos/toggle/status/${id}`)
-   
-    const updateTask = allTask.map((t) => t._id === id ? { ...t, status: t.status === 'pending' ? 'completed' : 'pending' } : t);
-    setTask(updateTask);
-    setAllTask(updateTask);
-    
+    console.log("PATCH ID:", id);
+    const response = await axios.patch(`http://localhost:5000/api/todos/toggle/status/${id}`);
 
-     
+    const updateTask = allTask.map((t) =>
+      t._id === id ? response.data.data : t
+    );
+   
+    // const updateTask = allTask.map((t) => t._id === id ? { ...t, status: t.status === 'Pending' ? 'Completed' : 'Pending' } : t);
+    setTask(updateTask);
+    setAllTask(updateTask);  
 
     alert("List Completed")
 
    } catch (error) {
-    console.error("Error",error);
+    console.error("Error",error.response?.data || error.message);
     
    }
   }
@@ -113,7 +93,7 @@ function Home({task, setTask}) {
 
   const handleDelete = async (id) => {
     try {
-      const response = await axios.delete(`https://api.freeapi.app/api/v1/todos/${id}`);
+      const response = await axios.delete(`http://localhost:5000/api/todos/${id}`);
        const updateTask = task.filter((t) => t._id !== id);
         setTask(updateTask);
         setAllTask(updateTask);
@@ -161,9 +141,9 @@ function Home({task, setTask}) {
       setEditIndex(id);  
        
         try {
-          const response = await axios.get(`https://api.freeapi.app/api/v1/todos/${id}`);
+          const response = await axios.get(`http://localhost:5000/api/todos/${id}`);
           console.log("get data",response.data)
-          const todo = response.data.data || response.data;
+          const todo = response.data || response.data;
           setEdit({
             title: todo.title || "",
             comments: todo.comments || "", 
@@ -182,7 +162,7 @@ function Home({task, setTask}) {
 
      if (editIndex !== null) {
       try{
-         const response = await axios.patch(`https://api.freeapi.app/api/v1/todos/${editIndex}`,edit);
+         const response = await axios.patch(`http://localhost:5000/api/todos/${editIndex}`, edit);
 
          const updateTask = response.data;
          const updateTasks = task.map(t=> t._id === editIndex ? updateTask :t);
@@ -214,13 +194,13 @@ function Home({task, setTask}) {
             <p className="text-gray-500">No pending tasks</p>
           ) : (<ul className='space-y-4'>
             {filteredTasks?.map((item, index) => {
-              const overDue = item.status === "pending" && new Date(item.deadline) < new Date();
+              const overDue = item.status === "Pending" && new Date(item.deadline) < new Date();
 
               return (
 
                 <li key={item._id} className={`border rounded p-4 shadow-sm hover:shadow-sm flex justify-between items-center ${overDue ? 'bg-red-100 border-red-500' : 'bg-white'}`}>
                   <div className='flex gap-4'>
-                    <input type="checkbox" checked={item.isComplete} onChange={() => handleCheckbox(item._id)} />
+                    <input type="checkbox" checked={item.status === "Completed"} onChange={() => handleCheckbox(item._id)} />
                     <div>
                       <h2 className='text-lg font-semibold'>{item.title}</h2>
                       <p>Deadline: {item.deadline}</p>

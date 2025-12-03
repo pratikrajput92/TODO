@@ -29,39 +29,28 @@ function ADDTask({task, setTask}) {
 
   try {
     const response = await axios.post(
-      "https://api.freeapi.app/api/v1/todos",
+      "http://localhost:5000/api/todos",
       {
         title: add.title,
-        description: add.comments,
-        // date: add.date,
-        // deadline: add.deadline,
-        // id: add.id,
-        // completed: false,
+        priority: add.priority,
+        comments: add.comments,
+      
+        deadline: add.deadline,
+        id: add.id,
+        status: "Pending",
       }
     );
 
     console.log("✅ Task created:", response.data);
 
-    // const newApiTask = {
-    //   id: response.data?.data?._id || Date.now(),
-    //   title: response.data?.data?.title || add.title,
-    //   description: response.data?.data?.description || add.comments,
-    //   // status: response.data?.data?.completed ? "completed" : "pending",
-    //   // priority: add.priority,
-    //   // deadline: add.deadline,
-    //   // date: add.date,
-    // };
-
-    // setTask((prev) => [...prev, newApiTask]);
-
+   
     setAdd({
       title: "",
       priority: "",
       deadline: "",
       comments: "",
       id: Date.now(),
-      status: "pending",
-      date: new Date().toISOString().split("T")[0],
+      status: "Pending",
     });
 
     navigate("/");
@@ -103,19 +92,36 @@ function ADDTask({task, setTask}) {
 
   return (
     <div className='h-140 flex flex-col justify-center items-center bg-gray-100'>
-      <div className='w-130 flex justify-center items-center rounded-lg flex-col  bg-white  p-6 shadow-md shadow-rose-500'>
+      <div className='w-130 flex justify-center items-center rounded-lg flex-col  bg-white  p-6 shadow-md shadow-gray-500'>
         <h1 className='text-3xl font-semibold text-black'>Task Details</h1>
         <form onSubmit={handleSubmit}>
-          <div className='w-120 flex flex-col gap-4 m-4 text-gray-500 '>
+          <div className='w-120 flex flex-col gap-4 m-4 text-gray-800 '>
             <div className='flex flex-col '>
               <label htmlFor='title'>Title</label>
               <input className='border-1 border-gray-400 rounded-lg p-2' type="text" name='title' placeholder='Add a task title' value={add.title} onChange={handleInput} required />
             </div>
             <div className='flex gap-4'>
-              <div className='w-60 flex flex-col'>
-                <label htmlFor='priority'>Priority</label>
-                <input className='border-1 border-gray-400 rounded-lg p-2' type="text" name='priority' placeholder='Select priority' value={add.priority} onChange={handleInput} required />
+              <div className="flex flex-col w-60">
+                <label className="mb-1">Priority</label>
+                <div className="flex items-center gap-4">
+                  {/* Low */}
+                  <label className="flex items-center gap-1">
+                    <input type="radio" name="priority" value="Low" checked={add.priority === "Low"} onChange={handleInput}/>
+                    <span>Low</span>
+                  </label>
+                  {/* Medium */}
+                  <label className="flex items-center gap-1">
+                    <input type="radio" name="priority" value="Medium" checked={add.priority === "Medium"} onChange={handleInput}/>
+                    <span>Medium</span>
+                  </label>
+                  {/* High */}
+                  <label className="flex items-center gap-1">
+                    <input type="radio" name="priority" value="High" checked={add.priority === "High"} onChange={handleInput}/>
+                    <span>High</span>
+                  </label>
+                </div>
               </div>
+
               <div className='w-60 flex flex-col'>
                 <label htmlFor='deadline'>Deadline</label>
                 <input className='border-1 border-gray-400 rounded-lg p-2' type="date" name='deadline' placeholder='Select Date' value={add.deadline} onChange={handleInput} required />
@@ -139,3 +145,20 @@ function ADDTask({task, setTask}) {
 }
 
 export default ADDTask
+
+
+
+
+{/*<div className='w-60 flex flex-col'>
+    <label htmlFor='priority'>Priority</label>
+    <select name="priority" value={add.priority} onChange={handleInput} className='border-1 border-gray-400 rounded-lg p-2' required >
+      <option value="">Select priority</option>
+      <option value="Low">Low</option>
+      <option value="Medium">Medium</option>
+      <option value="High">High</option>
+    </select>
+  </div> 
+  <div className='w-60 flex flex-col'>
+    <label htmlFor='priority'>Priority</label>
+    <input className='border-1 border-gray-400 rounded-lg p-2' type="text" name='priority' placeholder='Select priority' value={add.priority} onChange={handleInput} required />
+  </div> */}
