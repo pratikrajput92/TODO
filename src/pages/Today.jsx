@@ -1,6 +1,6 @@
 import React from 'react'
-import Header from '../component/todo/Header'
-import TODAY from '../component/todo/TODAY'
+import Header from '../component/Header'
+import TODAY from '../component/TODAY'
 
 function Today() {
   return (

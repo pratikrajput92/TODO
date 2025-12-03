@@ -1,6 +1,6 @@
 import React from 'react'
-import Header from '../component/todo/Header.jsx'
-import Home from '../component/todo/Home.jsx'
+import Header from '../component/Header.jsx'
+import Home from '../component/Home.jsx'
 
 
 
