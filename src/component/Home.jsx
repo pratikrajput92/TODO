@@ -184,126 +184,284 @@ function Home({task, setTask}) {
 
   return (
 
-    <div className=' bg-gray-100 flex  justify-center items-center flex-col overflow-hidden pb-8'>
+    <div className="bg-gray-100 flex justify-center px-4 py-6">
+      <div className="w-full max-w-6xl bg-white rounded-lg p-4 shadow-md border">
 
+        {/* LIST SECTION */}
+        <div className="mt-4">
+          {filteredTasks.length === 0 ? (
+            <p className="text-gray-500 text-center">No tasks found</p>
+          ) : (
+            <ul className="space-y-4">
+              {filteredTasks.map((item) => {
+                const overDue =
+                  item.status === "Pending" &&
+                  new Date(item.deadline) < new Date();
 
-      <div className='w-xl md:w-7xl h-auto flex flex-col mt-2 bg-white border-1 border-gray-300 shadow-lg shadow-gray-500 overflow-hidden '>
+                return (
+                  <li
+                    key={item._id}
+                    className={`border rounded-lg p-4 flex flex-col md:flex-row md:justify-between md:items-center gap-4 shadow-sm 
+                      ${overDue ? "bg-red-100 border-red-500" : "bg-white"}`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        checked={item.status === "Completed"}
+                        onChange={() => handleCheckbox(item._id)}
+                      />
 
-        <div className='p-2 m-6 md:w-6.5xl border-1 border-gray-300 h-auto'>
-          {filteredTasks?.length === 0 ? (
-            <p className="text-gray-500">No pending tasks</p>
-          ) : (<ul className='space-y-4'>
-            {filteredTasks?.map((item, index) => {
-              const overDue = item.status === "Pending" && new Date(item.deadline) < new Date();
-
-              return (
-
-                <li key={item._id} className={`border rounded p-4 shadow-sm hover:shadow-sm flex justify-between items-center ${overDue ? 'bg-red-100 border-red-500' : 'bg-white'}`}>
-                  <div className='flex gap-4'>
-                    <input type="checkbox" checked={item.status === "Completed"} onChange={() => handleCheckbox(item._id)} />
-                    <div>
-                      <h2 className='text-lg font-semibold'>{item.title}</h2>
-                      <p>Deadline: {item.deadline}</p>
+                      <div>
+                        <h2 className="text-lg font-semibold">{item.title}</h2>
+                        <p className="text-sm text-gray-600">
+                          Deadline: {item.deadline?.split("T")[0]}
+                        </p>
+                      </div>
                     </div>
 
-                  </div>
-                  <div className='space-x-4 '>
-                    <button type='button' onClick={() => handleEditClick(item._id)} className=''><Pencil size={20} /></button>
-                    <button type='button' onClick={() => handleDelete(item._id)}><Trash2 size={20} /></button>
-                  </div>
-                </li>
+                    <div className="flex gap-4 self-end md:self-auto">
+                      <button onClick={() => handleEditClick(item._id)}>
+                        <Pencil size={20} className="text-blue-600" />
+                      </button>
 
-              )
-
-            })}
-          </ul>
+                      <button onClick={() => handleDelete(item._id)}>
+                        <Trash2 size={20} className="text-red-600" />
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
           )}
         </div>
 
-        <div className='w-xl md:w-7xl h-auto flex flex-col mt-8 bg-white border-1 border-gray-300 shadow-lg shadow-gray-500 overflow-hidden '>
-
-        </div>
-
+        {/* EDIT */}
         {editIndex !== null && (
-          <div className="fixed inset-0 flex justify-center items-center bg-gray-700 bg-opacity-10 z-50">
-            <div className="w-[500px] max-w-full rounded-lg bg-white p-6 shadow-lg">
-              <h1 className="text-2xl font-semibold mb-4">Task Details</h1>
+          <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 backdrop-blur-sm p-4 z-50">
+            <div className="w-full max-w-md bg-white rounded-lg p-6 shadow-xl">
+              <h2 className="text-2xl font-semibold mb-4 text-center">Edit Task</h2>
+
               <form onSubmit={editSubmit} className="space-y-4">
                 <div className="flex flex-col">
-                  <label htmlFor="title">Title</label>
+                  <label>Title</label>
                   <input
-                    className="border border-gray-400 rounded-lg p-2"
                     type="text"
                     name="title"
-                    placeholder="Add a task title"
                     value={edit.title}
-                    onChange={handleEdit}
+                    onChange={(e) =>
+                      setEdit({ ...edit, title: e.target.value })
+                    }
+                    className="border rounded-lg p-2"
                     required
                   />
                 </div>
 
-                <div className="flex gap-4">
-                  <div className="flex flex-col flex-1">
-                    <label htmlFor="priority">Priority</label>
-                    <input
-                      className="border border-gray-400 rounded-lg p-2"
-                      type="text"
-                      name="priority"
-                      placeholder="Select priority"
-                      value={edit.priority}
-                      onChange={handleEdit}
-                      required
-                    />
-                  </div>
-                  <div className="flex flex-col flex-1">
-                    <label htmlFor="deadline">Deadline</label>
-                    <input
-                      className="border border-gray-400 rounded-lg p-2"
-                      type="date"
-                      name="deadline"
-                      value={edit.deadline}
-                      onChange={handleEdit}
-                      required
-                    />
-                  </div>
+                <div className="flex flex-col">
+                  <label>Priority</label>
+                  <select
+                    name="priority"
+                    value={edit.priority}
+                    onChange={(e) =>
+                      setEdit({ ...edit, priority: e.target.value })
+                    }
+                    className="border rounded-lg p-2"
+                  >
+                    <option>Low</option>
+                    <option>Medium</option>
+                    <option>High</option>
+                  </select>
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="comments">Comments</label>
-                  <textarea
-                    className="border border-gray-400 rounded-lg p-2"
-                    name="comments"
-                    placeholder="Add any comments to your task"
-                    value={edit.comments}
-                    onChange={handleEdit}
+                  <label>Deadline</label>
+                  <input
+                    type="date"
+                    name="deadline"
+                    value={edit.deadline}
+                    onChange={(e) =>
+                      setEdit({ ...edit, deadline: e.target.value })
+                    }
+                    className="border rounded-lg p-2"
                     required
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label>Comments</label>
+                  <textarea
+                    name="comments"
+                    value={edit.comments}
+                    onChange={(e) =>
+                      setEdit({ ...edit, comments: e.target.value })
+                    }
+                    className="border rounded-lg p-2 h-24"
                   />
                 </div>
 
                 <div className="flex justify-end gap-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      setEditIndex(null);
-                      setEdit({ title: "", priority: "", deadline: "", comments: "" });
-                    }}
-                    className="bg-gray-200 hover:bg-gray-300 rounded-lg px-4 py-2"
+                    onClick={() => setEditIndex(null)}
+                    className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
                   >
                     Close
                   </button>
+
                   <button
                     type="submit"
-                    className="bg-green-600 hover:bg-green-500 text-white rounded-lg px-4 py-2"
+                    className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-500"
                   >
-                    Update Task
+                    Update
                   </button>
                 </div>
               </form>
             </div>
           </div>
         )}
+
       </div>
     </div>
+
+    // <div className=' bg-gray-100 flex  justify-center items-center flex-col overflow-hidden pb-8'>
+
+
+    //   <div className='w-xl md:w-7xl h-auto flex flex-col mt-2 bg-white border-1 border-gray-300 shadow-lg shadow-gray-500 overflow-hidden '>
+
+    //     <div className='p-2 m-6 md:w-6.5xl border-1 border-gray-300 h-auto'>
+    //       {filteredTasks?.length === 0 ? (
+    //         <p className="text-gray-500">No pending tasks</p>
+    //       ) : (<ul className='space-y-4'>
+    //         {filteredTasks?.map((item, index) => {
+    //           const overDue = item.status === "Pending" && new Date(item.deadline) < new Date();
+
+    //           return (
+
+    //             <li key={item._id} className={`border rounded p-4 shadow-sm hover:shadow-sm flex justify-between items-center ${overDue ? 'bg-red-100 border-red-500' : 'bg-white'}`}>
+    //               <div className='flex gap-4'>
+    //                 <input type="checkbox" checked={item.status === "Completed"} onChange={() => handleCheckbox(item._id)} />
+    //                 <div>
+    //                   <h2 className='text-lg font-semibold'>{item.title}</h2>
+    //                   <p>Deadline: {item.deadline}</p>
+    //                 </div>
+
+    //               </div>
+    //               <div className='space-x-4 '>
+    //                 <button type='button' onClick={() => handleEditClick(item._id)} className=''><Pencil size={20} /></button>
+    //                 <button type='button' onClick={() => handleDelete(item._id)}><Trash2 size={20} /></button>
+    //               </div>
+    //             </li>
+
+    //           )
+
+    //         })}
+    //       </ul>
+    //       )}
+    //     </div>
+
+    //     <div className='w-xl md:w-7xl h-auto flex flex-col mt-8 bg-white border-1 border-gray-300 shadow-lg shadow-gray-500 overflow-hidden '>
+
+    //     </div>
+
+    //     {editIndex !== null && (
+    //       <div className="fixed inset-0 flex justify-center items-center bg-neutral-100 bg-opacity-0.5 z-50">
+    //         <div className="w-[500px] max-w-full rounded-lg bg-white p-6 shadow-lg">
+    //           <h1 className="text-2xl font-semibold mb-4">Task Details</h1>
+    //           <form onSubmit={editSubmit} className="space-y-4">
+    //             <div className="flex flex-col">
+    //               <label htmlFor="title">Title</label>
+    //               <input
+    //                 className="border border-gray-400 rounded-lg p-2"
+    //                 type="text"
+    //                 name="title"
+    //                 placeholder="Add a task title"
+    //                 value={edit.title}
+    //                 onChange={handleEdit}
+    //                 required
+    //               />
+    //             </div>
+
+    //             <div className="flex gap-4">
+    //               <div className="flex flex-col w-60">
+    //                 <label className="mb-1">Priority</label>
+    //                 <div className="flex items-center gap-4">
+    //                   {/* Low */}
+    //                   <label className="flex items-center gap-1">
+    //                     <input type="radio" name="priority" value="Low" checked={edit.priority === "Low"} onChange={handleEdit}/>
+    //                     <span>Low</span>
+    //                   </label>
+    //                   {/* Medium */}
+    //                   <label className="flex items-center gap-1">
+    //                     <input type="radio" name="priority" value="Medium" checked={edit.priority === "Medium"} onChange={handleEdit}/>
+    //                     <span>Medium</span>
+    //                   </label>
+    //                   {/* High */}
+    //                   <label className="flex items-center gap-1">
+    //                     <input type="radio" name="priority" value="High" checked={edit.priority === "High"} onChange={handleEdit}/>
+    //                     <span>High</span>
+    //                   </label>
+    //                 </div>
+    //               </div>
+    //               {/* <div className="flex flex-col flex-1">
+    //                 <label htmlFor="priority">Priority</label>
+    //                 <input
+    //                   className="border border-gray-400 rounded-lg p-2"
+    //                   type="text"
+    //                   name="priority"
+    //                   placeholder="Select priority"
+    //                   value={edit.priority}
+    //                   onChange={handleEdit}
+    //                   required
+    //                 />
+    //               </div> */}
+    //               <div className="flex flex-col flex-1">
+    //                 <label htmlFor="deadline">Deadline</label>
+    //                 <input
+    //                   className="border border-gray-400 rounded-lg p-2"
+    //                   type="date"
+    //                   name="deadline"
+    //                   value={edit.deadline}
+    //                   onChange={handleEdit}
+    //                   required
+    //                 />
+    //               </div>
+    //             </div>
+
+    //             <div className="flex flex-col">
+    //               <label htmlFor="comments">Comments</label>
+    //               <textarea
+    //                 className="border border-gray-400 rounded-lg p-2"
+    //                 name="comments"
+    //                 placeholder="Add any comments to your task"
+    //                 value={edit.comments}
+    //                 onChange={handleEdit}
+    //                 required
+    //               />
+    //             </div>
+
+    //             <div className="flex justify-end gap-2">
+    //               <button
+    //                 type="button"
+    //                 onClick={() => {
+    //                   setEditIndex(null);
+    //                   setEdit({ title: "", priority: "", deadline: "", comments: "" });
+    //                 }}
+    //                 className="bg-gray-200 hover:bg-gray-300 rounded-lg px-4 py-2"
+    //               >
+    //                 Close
+    //               </button>
+    //               <button
+    //                 type="submit"
+    //                 className="bg-green-600 hover:bg-green-500 text-white rounded-lg px-4 py-2"
+    //               >
+    //                 Update Task
+    //               </button>
+    //             </div>
+    //           </form>
+    //         </div>
+    //       </div>
+    //     )}
+    //   </div>
+    // </div>
   );
 }
 
