@@ -54,7 +54,7 @@ function Header({setTask, }) {
       </div>
       <div className='w-full max-w-6xl flex flex-col md:flex-row md:justify-between justify-center items-center mt-10 gap-4 px-4'>
         <div>
-          <Link to={'/'} className='font-semibold text-2xl md:text-3xl'>Tasks</Link>
+          <Link to={'/'} className={`font-semibold text-2xl md:text-3xl ${type === undefined ? "text-orange-600" : "hover:text-orange-600"}`}>Tasks</Link>
         </div>
         <div className='flex justify-center items-center gap-2 w-full md:w-auto'>
           <input 
